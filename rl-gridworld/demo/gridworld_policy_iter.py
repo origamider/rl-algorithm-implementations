@@ -10,5 +10,5 @@ from algorithms.policy_iter import *
 env = GridWorld()
 gamma = 0.9
 pi,V = policy_iter(env,gamma)
-env.show_map(V,pi)
+env.render_v(V,pi)
 show_V(V)

@@ -11,5 +11,5 @@ gamma = 0.9
 V = defaultdict(lambda:0)
 V = value_iter(V,env,gamma)
 pi = greedy_policy(V,env,gamma)
-env.show_map(V,pi)
+env.render_v(V,pi)
 show_V(V)
