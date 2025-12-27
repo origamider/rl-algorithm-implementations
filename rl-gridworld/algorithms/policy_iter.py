@@ -21,7 +21,7 @@ def greedy_policy(V,env,gamma):
     for state in env.states():
         action_values = {}
         for action in range(4):
-            next_state = env.step(state,action)
+            next_state = env.next_state(state,action)
             reward = env.reward(state,action,next_state)
             action_values[action] = reward + gamma*V[next_state]
         max_action = argmax(action_values)

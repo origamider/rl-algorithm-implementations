@@ -25,8 +25,8 @@ class GridWorld:
             for j in range(self.width):
                 yield (i,j)
     
-    # 次の状態への遷移
-    def step(self,state,action):
+    # 次の状態を返す
+    def next_state(self,state,action):
         action_move = [(-1,0),(1,0),(0,-1),(0,1)] # 上下左右
         move = action_move[action]
         next_state = (state[0]+move[0],state[1]+move[1])
@@ -38,7 +38,7 @@ class GridWorld:
             next_state = state
         
         return next_state
-    
+
     # r(s,a,s')に対応してる。
     def reward(self,state,action,next_state):
         return self.map[next_state] # numpyの場合、map[1][2]をmap[1, 2]ともかける。ただ、listだったら無理。
