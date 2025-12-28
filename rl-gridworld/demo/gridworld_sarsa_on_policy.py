@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.pardir)
-from algorithms.sarsa import SarsaAgent
+from algorithms.sarsa_on_policy import SarsaOnPolicyAgent
 from environments.gridworld import GridWorld
 
 # 概要
@@ -13,7 +13,7 @@ from environments.gridworld import GridWorld
 # DP法のようなブートストラップによる価値関数の逐次更新と、MC法のようなサンプリングデータのみで価値関数を更新できる点が強み。
 
 env = GridWorld()
-agent = SarsaAgent()
+agent = SarsaOnPolicyAgent()
 episodes = 10000
 for episode in range(episodes):
     state = env.reset()

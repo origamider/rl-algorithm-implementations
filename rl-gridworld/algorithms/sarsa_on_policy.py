@@ -1,8 +1,8 @@
 from collections import defaultdict,deque
 import numpy as np
 
-
-class SarsaAgent:
+# 方策ON型SARSAの実装
+class SarsaOnPolicyAgent:
     def __init__(self):
         self.gamma = 0.9
         self.alpha = 0.8
