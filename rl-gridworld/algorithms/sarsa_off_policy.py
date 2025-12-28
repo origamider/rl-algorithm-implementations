@@ -38,7 +38,7 @@ class SarsaOffPolicyAgent:
         return res
 
     # Q関数の更新処理
-    # Q'(St,At) = Q(St,At) + α{Rt + γQ(S_(t+1),A_(t+1)) - Q(St,At)}
+    # Q'(St,At) = Q(St,At) + α{ρ(Rt + γQ(S_(t+1),A_(t+1))) - Q(St,At)}
     def update(self,state,action,reward,done):
         self.memory.append((state,action,reward,done))
 
