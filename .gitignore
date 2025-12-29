@@ -22,3 +22,5 @@ Thumbs.db
 *.jpg
 *.jpeg
 *.gif
+# Test files
+test/
