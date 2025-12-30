@@ -1,16 +1,23 @@
 import numpy as np
 import gymnasium as gym
+import torch
 import os
 import sys
 sys.path.append(os.pardir)
 from algorithms.dqn import DQNAgent
 
-episodes = 50
+episodes = 10
 sync_interval = 20
 env = gym.make('CartPole-v1',render_mode='human')
 agent = DQNAgent()
+qnet_path = 'dqn_cartpole_final.pth'
+if os.path.exists(qnet_path):
+    agent.qnet.load_state_dict(torch.load(qnet_path))
+    print('Successfully loaded the training model!')
 ct = 0
 reward_history = []
+print("Training DQN agent...")
+
 for episode in range(episodes):
     state,info = env.reset()
     done = False
@@ -30,5 +37,7 @@ for episode in range(episodes):
         agent.sync_qnet()
     reward_history.append(total_reward)
 
+torch.save(agent.qnet.state_dict(),'dqn_cartpole_final.pth')
+print("Training completed!")
 env.close()
 print(total_reward)
