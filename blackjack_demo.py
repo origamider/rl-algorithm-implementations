@@ -32,11 +32,11 @@ class BlackJackAgent:
         self.episilon = max(self.last_episilon,self.episilon-self.episilon_decay)
 
 # hyperparameters
-lr = 0.1
+lr = 0.001
 epsilon = 1.0
-num_episodes = 400000
+num_episodes = 1000000
 epsilon_decay = epsilon / (num_episodes/2)
-last_epsilon = 0.1
+last_epsilon = 0.01
 
 env = gym.make("Blackjack-v1",sab=False)
 env = gym.wrappers.RecordEpisodeStatistics(env,buffer_length=num_episodes)
@@ -45,7 +45,7 @@ agent = BlackJackAgent(env=env,lr=lr,initial_epsilon=epsilon,epsilon_decay=epsil
 for episode in tqdm(range(num_episodes)):
     obs,info = env.reset()
     done = False
-    
+    episode_reward = 0
     while not done:
         action = agent.get_action(obs)
         next_obs, reward, terminated, truncated, info = env.step(action)
@@ -54,31 +54,56 @@ for episode in tqdm(range(num_episodes)):
         obs = next_obs
     agent.decay_epsilon()
 
+def test_agent(num_episodes=1000):
+    agent.episilon = 0
+    total_rewards = []
+    for episode in tqdm(range(num_episodes)):
+        obs, info = env.reset()
+        episode_reward = 0
+        done = False
+        while not done:
+            action = agent.get_action(obs)
+            next_obs, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+            episode_reward += reward
+        total_rewards.append(episode_reward)
+    win_rate = np.mean(np.array(total_rewards) > 0)
+    average_reward = np.mean(total_rewards)
+    print(f"win_rate = {win_rate}")
+    print(f"average_reward = {average_reward}")
+
 # show result 
 
 # return average of some episode's value
 def get_moving_avgs(target,window,convolution_mode):
     return np.convolve(np.array(target).flatten(),np.ones(window)) / window
 
-current_idx = 0
-td_errors = []
-
-for length in env.length_queue:
-    errors = agent.training_error[current_idx:current_idx+length]
-    td_errors.append(np.mean(np.abs(errors)))
-    current_idx += length
-    
+# evaluate agent
+test_agent()
 
 rolling_length = 500
-current_idx = 0
-training_error_moving_average = get_moving_avgs(td_errors,rolling_length,"valid")
 
-# TD誤差は大体0.6付近で収束するかも
-# これはblackjackのゲーム性によるもので、どんなに学習しても最終的に運の要素が残ってしまうからってことかな
-plt.figure(figsize=(8,5))
-plt.title("TD Error per episode")
-plt.plot(range(len(training_error_moving_average)),training_error_moving_average)
-plt.ylabel("TD error")
-plt.xlabel("episode")
-plt.legend()
+fig,axes = plt.subplots(3,figsize=(12,6))
+axes[0].set_title("Rewards per episode")
+reward_moving_average = get_moving_avgs(agent.env.return_queue,rolling_length,"valid")
+axes[0].plot(range(len(reward_moving_average)),reward_moving_average)
+axes[0].set_xlabel("episode")
+axes[0].set_ylabel("Rewards")
+
+axes[1].set_title("Length per episode")
+length_moving_average = get_moving_avgs(agent.env.length_queue,rolling_length,"valid")
+axes[1].plot(range(len(length_moving_average)),length_moving_average)
+axes[1].set_xlabel("episode")
+axes[1].set_ylabel("Length")
+
+
+# TD error
+axes[2].set_title("TD error per episode")
+training_error_moving_average = get_moving_avgs(agent.training_error,rolling_length,"valid")
+axes[2].plot(range(len(training_error_moving_average)),training_error_moving_average)
+axes[2].set_xlabel("episode")
+axes[2].set_ylabel("TD error")
+
+
+
 plt.show()
