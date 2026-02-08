@@ -83,7 +83,7 @@ exploration_noise = 0.1
 learning_starts = 1000
 total_step = 0
 gamma = 0.99
-sync_interval = 200
+tau = 0.005
 # train
 for episode in tqdm(range(num_episodes)):
     obs, info = env.reset()
@@ -107,7 +107,8 @@ for episode in tqdm(range(num_episodes)):
         
         if total_step > learning_starts:
             b_obs, b_action, b_reward, b_next_obs, b_done = replay_buffer.sample()
-            target = b_reward + gamma*critic_target(b_next_obs,actor_target(b_next_obs))*(1-b_done)
+            with torch.no_grad():
+                target = b_reward + gamma*critic_target(b_next_obs,actor_target(b_next_obs))*(1-b_done)
             base_q = critic(b_obs,b_action)
             critic_loss = criterion(target,base_q)
             critic_optimizer.zero_grad()
@@ -120,9 +121,11 @@ for episode in tqdm(range(num_episodes)):
             actor_loss.backward()
             actor_optimizer.step()
             
-            if total_step % sync_interval == 0:
-                actor_target.load_state_dict(actor.state_dict())
-                critic_target.load_state_dict(critic.state_dict())
+            for param,target_param in zip(critic.parameters(),critic_target.parameters()):
+                target_param.data.copy_(tau*param.data + (1-tau)*target_param.data)
+            for param,target_param in zip(actor.parameters(),actor_target.parameters()):
+                target_param.data.copy_(tau*param.data + (1-tau)*target_param.data)
+
 
 env_test = gym.make("Pendulum-v1",render_mode="human")
 test_num_episodes = 20
