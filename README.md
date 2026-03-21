@@ -3,8 +3,11 @@
 いろんな強化学習のアルゴリズムを実装してます。
 
 ## 概要
-書籍『ゼロから作るDeep Learning ❹ 強化学習編』をベースに、強化学習アルゴリズムをPyTorch実装しています。
-OpenAI Gymnasiumを使って使って遊んでいます。
+色んな強化学習アルゴリズムをPyTorchで実装したり、OpenAI Gymnasiumを使った強化学習環境でシミュレーションしたりしています。
+
+## 参考書籍
+- 『ゼロから作るDeep Learning ❹ 強化学習編』
+- 『ゼロから作るDeep Learning ❺ ―生成モデル編』
 
 ## 実装済みのアルゴリズム
   * モンテカルロ法 (MC Control / Evaluation)
