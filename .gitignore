@@ -24,3 +24,10 @@ Thumbs.db
 *.gif
 # Test files
 test/
+
+# World Models data and weights
+world-model/rollouts/
+world-model/weights/
+*.npz
+*.zip
+*.pt
