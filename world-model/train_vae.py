@@ -6,9 +6,10 @@ import torch.optim as optim
 from model.vae import VAE
 from tqdm import tqdm
 
-files = sorted(glob.glob("content/rollouts/episode_*.npz"))
+files = sorted(glob.glob("rollouts/20261014_011617/episode_*.npz"))
+train_files = files[:190]
 all_obs = []
-for f in files:
+for f in train_files:
     data = np.load(f)
     all_obs.append(data["observations"])  # (T, 64, 64, 3)
 
@@ -38,7 +39,7 @@ num_epochs = 50
 for epoch in tqdm(range(num_epochs)):
     total_loss = 0.0
     for batch_obs in train_loader:
-        batch_obs = batch_obs.to(device)
+        batch_obs = batch_obs.to(device).float() / 255.0 # obsはuintで保存したため、float変換&[0,1]変換。
         optimizer.zero_grad()
         loss = vae.get_loss(batch_obs)
         loss.backward()
