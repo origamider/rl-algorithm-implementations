@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 files = sorted(glob.glob("rollouts/20261014_011617/episode_*.npz"))
 train_files = files[:190]
+val_files = files[190:] # 検証用
 all_obs = []
 for f in train_files:
     data = np.load(f)
