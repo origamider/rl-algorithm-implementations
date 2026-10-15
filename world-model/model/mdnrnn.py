@@ -47,13 +47,14 @@ class MDNRNN(nn.Module):
         
         return mus, sigmas, logpi
 
-def gmm_loss(mus, sigmas, logpi, zs):
+def gmm_loss(mus, sigmas, logpi, zs, mask=None):
     """
     mus shape:(seq_len, batch_size, gaussians_dim, latent_dim)
     sigmas shape:(seq_len, batch_size, gaussians_dim, latent_dim)
     zs shape:(seq_len, batch_size, latent_dim)
+    mask shape: (seq_len, batch_size) 1=True Data, 0=False Data
     
-    Loss = - 1/(seq_len*batch_size) * (sigma_i sigma_j log p(z_(t+1)|z_t,a_t,h_t))
+    Loss = - 1/(num of (mask==1)) * (sigma_i sigma_j mask * log p(z_(t+1)|z_t,a_t,h_t))
     """
     
     zs = zs.unsqueeze(dim=-2) # shape: (seq_len, batch_size, 1, latent_dim)
@@ -66,4 +67,6 @@ def gmm_loss(mus, sigmas, logpi, zs):
     zs_probs = torch.exp(zs_log_probs)
     probs = torch.sum(zs_probs, dim=-1) # shape: (seq_len, batch_size)
     log_prob = max_log_probs.squeeze(dim=-1) + torch.log(probs)
-    return -torch.mean(log_prob)
+    if mask is None:
+        return -torch.mean(log_prob)
+    return -(log_prob*mask).sum() / mask.sum()
