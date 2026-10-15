@@ -133,7 +133,10 @@ class VAE(nn.Module):
 
         mse_loss = nn.MSELoss(reduction = 'sum')
         L1 = mse_loss(x, x_hat)
-        L2 = - 0.5 * torch.sum(1 + torch.log(sigma ** 2) - mu ** 2 - sigma ** 2)
+        tmp = 1 + torch.log(sigma ** 2) - mu ** 2 - sigma ** 2 # (N,32)
+        kl = -0.5 * torch.sum(tmp,dim=1) # (N,)
+        kl = torch.clamp(kl,min=16) # (N,)
+        L2 = kl.sum()
         
         return (L1 + L2) / N
 
