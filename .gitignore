@@ -31,3 +31,7 @@ world-model/weights/
 *.npz
 *.zip
 *.pt
+
+# W&B
+world-model/wandb/
+world-model/artifacts/
