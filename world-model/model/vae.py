@@ -119,10 +119,11 @@ class VAE(nn.Module):
         x_hat = self.decoder(z)
         return x_hat
     
-    def get_loss(self, x):
+    def get_loss(self, x, kl_min=16.0, return_parts=False):
         """
         損失関数
         Loss = sigma_d=1ToD (x_d - x_hat_d)^2 - sigma_h=1ToH (1 + log sigma_h^2 - mu_h^2 - sigma_h^2)
+        return_parts: 損失値、再構成誤差項、KL項を返すかどうか。
         """
         
         mu, sigma = self.encoder(x)
@@ -135,8 +136,10 @@ class VAE(nn.Module):
         L1 = mse_loss(x, x_hat)
         tmp = 1 + torch.log(sigma ** 2) - mu ** 2 - sigma ** 2 # (N,32)
         kl = -0.5 * torch.sum(tmp,dim=1) # (N,)
-        kl = torch.clamp(kl,min=16) # (N,)
+        kl = torch.clamp(kl,min=kl_min) # (N,)
         L2 = kl.sum()
         
+        if return_parts:
+            return (L1 + L2) / N, L1 / N, L2 / N
         return (L1 + L2) / N
 
