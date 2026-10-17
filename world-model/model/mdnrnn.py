@@ -46,6 +46,17 @@ class MDNRNN(nn.Module):
         logpi = torch.log_softmax(gmm_output[:, :, 2*base:], dim=-1)
         
         return mus, sigmas, logpi
+    
+    def step(self, action, z, hidden=None):
+        """
+        1ステップだけ LSTM を進めて、次の状態 (h, c) を返す。Controller で1フレームずつ使う。
+        action shape: (batch_size, actions_dim)
+        z shape: (batch_size, latent_dim)
+        hidden: (h, c) それぞれ shape: (1, batch_size, hidden_dim)。None なら 0 から始める
+        """
+        input = torch.cat([action, z], dim=-1).unsqueeze(0)  # shape: (1, batch_size, actions_dim + latent_dim)
+        _, hidden = self.rnn(input, hidden)
+        return hidden
 
 def gmm_loss(mus, sigmas, logpi, zs, mask=None):
     """
